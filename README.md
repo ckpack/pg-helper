@@ -9,8 +9,8 @@ Since [node-postgres](https://node-postgres.com/) uses ordinal parameter query `
 # Install
 
 ```shell
-  yarn add @c_kai/pg-helper
-  npm install @c_kai/pg-helper
+  yarn add @ckpack/pg-helper
+  npm install @ckpack/pg-helper
 ```
 ## Featrues
 
@@ -183,7 +183,7 @@ try {
    + options.logger `Object` - Used to modify the default log, it needs to include two functions `info` and `error`
 
 ```js
-const {PgHelper} = require('@c_kai/pg-helper');  
+const {PgHelper} = require('@ckpack/pg-helper');  
 const pgHelper = new PgHelper({
     host,
     user,
@@ -459,7 +459,7 @@ SQL: UPDATE "public"."users"
        where  (  "username" ={username}  )   ;
 values: {"username":"jack"}
 **/
-const {sqlUtils} = require('@c_kai/pg-helper');
+const {sqlUtils} = require('@ckpack/pg-helper');
 const result = await pgHelper.update({
   username: 'jack',
 }, {

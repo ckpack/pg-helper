@@ -9,8 +9,8 @@
 # Install
 
 ```shell
-  yarn add @c_kai/pg-helper
-  npm install @c_kai/pg-helper
+  yarn add @ckpack/pg-helper
+  npm install @ckpack/pg-helper
 ```
 
 
@@ -185,7 +185,7 @@ try {
   + options.returning `Boolean` - 如果`returning`为true返回结果会包含更新、插入、修改的数据
   + options.logger `Object` - 用于修改默认的日志，需要包含`info`、`error`两个函数
 ```js
-const {PgHelper} = require('@c_kai/pg-helper');  
+const {PgHelper} = require('@ckpack/pg-helper');  
 const pgHelper = new PgHelper({
     host,
     user,
@@ -459,7 +459,7 @@ SQL: UPDATE "public"."users"
      where  (  "username" ={username}  )   ;
 values: {"username":"jack"}
 **/
-const {sqlUtils} = require('@c_kai/pg-helper');
+const {sqlUtils} = require('@ckpack/pg-helper');
 
 const result = await pgHelper.update({
   username: 'jack',
