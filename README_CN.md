@@ -2,9 +2,9 @@
 
 [English](https://github.com/ckpack/pg-helper/blob/main//README.md)｜[简体中文](https://github.com/ckpack/pg-helper/blob/main//README_CN.md)
 
-A lightweight [node-postgres](https://node-postgres.com/) build query utils.
+轻量级的[node-postgres](https://node-postgres.com/)的构建查询助手。
 
-Since [node-postgres](https://node-postgres.com/) uses ordinal parameter query `($1, $2, etc)`, the variables need to have a clear order. Once too many parameters are used, it will be extremely troublesome. `pg-helper` allows you to build SQL easier, faster and safer.
+由于[node-postgres](https://node-postgres.com/) 使用序数参数查询`($1, $2, etc)`, 因此变量需要有明确的顺序，一旦参数过多使用起来就异常麻烦，`pg-helper`让你可以更容易、更快速、更安全的构建SQL。
 
 # Install
 
@@ -12,13 +12,15 @@ Since [node-postgres](https://node-postgres.com/) uses ordinal parameter query `
   yarn add @c_kai/pg-helper
   npm install @c_kai/pg-helper
 ```
+
+
 ## Featrues
 
-+ No need to pay attention to parameter order query
++ 无需关注参数顺序查询
 
-The template parameter `{params}` in `sql` will be replaced by the corresponding `$n`, and the corresponding value is the value corresponding to the `key` in the object parameter. You can use the `{}` template parameter anywhere, and finally execute It will be replaced with the form of `$n`
+`sql`中模版参数`{params}`会被对应`$n`替换，对应值为对象参数中对应`key`对应的值，你可以将`{}`模版参数用到任何地方,最终执行时它都会被替换成`$n`的形式
 
-These two query methods are equivalent:
+这两种查询方式是等效的
 
 ```js
 // in node-postgres
@@ -26,11 +28,11 @@ pg.query(`SELECT * FROM ${tablename} WHERE field1 = $1 AND field2 = $2`, [field1
 
 // in pg-helper 
 pgHelper.runSql(`SELECT * FROM ${tablename} WHERE field1 = {field1} AND field2 = {field2}`, {field1, field2});
-// Still supports the following way
+// 仍然支持下面这种写法
 pgHelper.runSql(`SELECT * FROM ${tablename} WHERE field1 = $1 AND field2 = $2`, [field1, field2])
 ```
 
-+ easier build sql
++ 方便的单表查询
 
 insert
 
@@ -100,7 +102,7 @@ select
 /**
 SQL: SELECT  * 
     FROM "public"."users"
-     where  (  "username" ={username}  and "id" >0  or  (  "email" ={email}  )   )     ;
+    where  (  "username" ={username}  and "id" >0  or  (  "email" ={email}  )   )     ;
 values: {"username":"jack","email":"demo@test.com"}
 **/
 const result = await pgHelper.select({
@@ -120,14 +122,14 @@ const result = await pgHelper.select({
 ```
 
 
-+ Simplified operations on transactions
++ 简便对事务的操作
 
 ```js
 await pgHelper.runTSql([
     {
-      sql: `DELETE FROM "public"."users"
-      	    where  (  "username" ={username}  and "id" >0  or  (  "email" ={email}  )   )`,
-      params: {"username":"jack","email":"jack@test.com"},
+       sql: `DELETE FROM "public"."users"
+      	where  (  "username" ={username}  and "id" >0  or  (  "email" ={email}  )   )`,
+       params: {"username":"jack","email":"jack@test.com"},
     },
     {
       sql: `UPDATE "public"."users"
@@ -164,12 +166,13 @@ try {
   });
  
   transaction.commit();
+
 } catch (error) {
   transaction.rollback();
 }
 ```
 
-+ Automatic reconnection
++ 自动的掉线重连
 
 # API
 
@@ -178,10 +181,9 @@ try {
 ### new PgHelper(config, options)
 + config `Object` - same as [pg.Pool](https://node-postgres.com/api/pool)
 + options
-   + options.autoHump `Boolean` - If `autoHump` is true, the name of the returned field will be formatted as hump
-   + options.returning `Boolean` - If `returning` is true, the returned result will contain updated, inserted, and modified data
-   + options.logger `Object` - Used to modify the default log, it needs to include two functions `info` and `error`
-
+  + options.autoHump `Boolean` - 如果`autoHump`为true返回字段的名称会格式化为驼峰
+  + options.returning `Boolean` - 如果`returning`为true返回结果会包含更新、插入、修改的数据
+  + options.logger `Object` - 用于修改默认的日志，需要包含`info`、`error`两个函数
 ```js
 const {PgHelper} = require('@c_kai/pg-helper');  
 const pgHelper = new PgHelper({
@@ -208,12 +210,12 @@ Function
 
 #### params
 
-+ params `Array<Object>` - insert data into the table, where the key of `Object` needs to correspond to the field in the data table one-to-one
++ params `Array<Object>` - 插入表的数据，其中`Object`的key需要和数据表中的字段一一对应
 + options
-   + options.autoHump `Boolean` - If `autoHump` is true, the name of the returned field will be formatted as hump
-   + options.tableName `String` - table name
-   + options.schemaName `String` - table name; default: `public`
-   + options.returning `Boolean｜Array` - If `returning` is true, the returned result will contain the inserted data. If it is an array, it will return the fields contained in the array
+  + options.autoHump `Boolean` - 如果`autoHump`为true返回字段的名称会格式化为驼峰
+  + options.tableName`String` - 表名称
+  + options.schemaName`String` - 表名称;default: `public`
+  + options.returning `Boolean｜Array` - 如果`returning`为true,返回结果会包含插入的数据，为数组时返回数组包含的字段
 
 #### return
 
@@ -227,31 +229,31 @@ Function
 
 #### params
 
-+ params `Object` - template parameters, the key of `Object` needs to correspond to the value of `{params}` in the SQL template one-to-one
++ params `Object` - 模版参数，其中`Object`的key需要和SQL模版中`{params}`值一一对应
 
 + options
 
-   + options.autoHump `Boolean` - If `autoHump` is true, the name of the returned field will be formatted as hump
+  + options.autoHump `Boolean` - 如果`autoHump`为true返回字段的名称会格式化为驼峰
 
-   + options.tableName `String` - table name
+  + options.tableName`String` - 表名称
 
-   + options.schemaName `String` - table name; default: `public`
+  + options.schemaName`String` - 表名称;default: `public`
 
-   + options.returning `Boolean｜Array`- If `returning` is true, the returned result will include the deleted data. If it is an array, it will return the fields contained in the array
+  + options.returning `Boolean｜Array` - 如果`returning`为true,返回结果会包含删除的数据，为数组时返回数组包含的字段
 
-   + options.where `Object` - to construct where sql, you can use `and`, `or` nesting
-   
+  + options.where`Object` - 构建where sql ,你可以使用`and`、`or`嵌套
+  
     ```js
     {
     	id: '>10',
     	type: '={type}',
     	or:{
-    		id: '= any({ids})'，
-        name: '={name}',
+    		id:'= any({ids})'，
+        name: '={name}'
     	}
     }
-    
-    	// sql
+      
+    // sql
     //where (id > 0 and type={type} or (id = any({ids} or name ={name} ) )
     ```
 
@@ -267,22 +269,22 @@ Function
 
 #### params
 
-+ params `Object`- template parameters, the key of `Object` needs to correspond to the value of `{params}` in the SQL template one-to-one
++ params `Object` - 模版参数，其中`Object`的key需要和SQL模版中`{params}`值一一对应
 
 + options
 
-   + options.autoHump `Boolean`- If `autoHump` is true, the name of the returned field will be formatted as hump
+  + options.autoHump `Boolean` - 如果`autoHump`为true返回字段的名称会格式化为驼峰
 
-   + options.tableName `String` - table name
+  + options.tableName`String` - 表名称
 
-   + options.schemaName `String` - table name; default: `public`
+  + options.schemaName`String` - 表名称;default: `public`
 
-   + options.returning `Boolean｜Array` - If `returning` is true, the returned result will contain updated data. If it is an array, return the fields contained in the array
+  + options.returning `Boolean｜Array` - 如果`returning`为true,返回结果会包含更新的数据，为数组时返回数组包含的字段
 
-   + options.where `Object` - to construct where sql, you can use `and`, `or` nesting
-   
-   + options. update `Array|Object` - the field to be updated
-   
+  + options.where`Object` - 构建where sql ,你可以使用`and`、`or`嵌套
+  
+  + options. update`Array|Object` - 需要更新的字段
+  
     ```js
     ['name', 'type']
     //name = {name},type={type}
@@ -292,11 +294,9 @@ Function
      
     ['name', { field: 'type', updated_at: 'now()'}]
     // name = {name},updated_at=now()
-    ```
-
-
+    
     { 'name',updated_at: sqlUtils.literalSql('now()') }
-    // name = {name}, updated_at = now()
+    // name = {name}, updated_at = now()  
     ```
 
 #### return
@@ -311,28 +311,28 @@ Function
 
 #### params
 
-+ params `Object`-template parameters, the key of `Object` needs to correspond to the value of `{params}` in the SQL template one-to-one
++ params `Object` - 模版参数，其中`Object`的key需要和SQL模版中`{params}`值一一对应
 
 + options
 
-   + options.autoHump `Boolean` - If `autoHump` is true, the name of the returned field will be formatted as hump
+  + options.autoHump `Boolean` - 如果`autoHump`为true返回字段的名称会格式化为驼峰
 
-   + options.tableName `String` - table name
+  + options.tableName`String` - 表名称
 
-   + options.schemaName `String` - table name; default: `public`
+  + options.schemaName`String` - 表名称;default: `public`
 
-   + options.where `Object` - build where sql
-   
-   + options.limit `int` - limit number
-   
-   + options.offset `int` - offset number
-   
-   + options.count `Boolean` - Whether to return the number of rows in the query
-   
-   + options.include `array` - returned field array default`*`
-   
-   + options.order `array`- build ordersql
-   
+  + options.where`Object` -  构建where sql 
+  
+  + options.limit `int` - limit number
+  
+  + options.offset `int` - offset number
+  
+  + options.count `Boolean` - 是否返回查询的行数
+  
+  + options.include `array` - 返回的字段数组default`*`
+  
+  + options.order `array` - 构建ordersql
+  
   ```js
     ['id', ['type', 'desc'], ['name', 'asc']]
   
@@ -352,17 +352,17 @@ Function
 
 #### params
 
-+ sqlTem `String` - the executed sql template
++ sqlTem `String` - 执行的sql
 
-+ obj `Object` - template parameters, the key of `Object` needs to correspond to the value of `{params}` in the SQL template one-to-one
++ obj `Object` - 模版参数，其中`Object`的key需要和SQL模版中`{params}`值一一对应
 
-+ options `Object`
++ options `Object` 
 
-   + options.autoHump `Boolean` - If `autoHump` is true, the name of the returned field will be formatted as hump
+  + options.autoHump `Boolean` - 如果`autoHump`为true返回字段的名称会格式化为驼峰
 
-   + options.returning `Boolean` - If `returning` is true, the returned result will contain updated, inserted, and modified data
+  + options.returning `Boolean` - 如果`returning`为true返回结果会包含更新、插入、修改的数据
 
-   + options.transaction `Client` - `pgHelper.getTransaction()` return value
+  + options.transaction `Client` - `pgHelper.getTransaction()` 返回值
 
     ```js
     let transaction;
@@ -391,7 +391,7 @@ same as [pg.queries](https://node-postgres.com/features/queries)
 
 Function
 
-Get a transaction `Client`
+获取一个事务`Client`
 
 
 
@@ -399,7 +399,7 @@ Get a transaction `Client`
 
 Function
 
-will auto commit or rollback
+会自动提交会回滚一个事务
 
 #### params
 
@@ -428,7 +428,7 @@ same as [pg.queries](https://node-postgres.com/features/queries)
 
 Function
 
-commit a transaction
+提交一个事务
 
 
 
@@ -436,7 +436,7 @@ commit a transaction
 
 Function
 
-rollback a transaction
+回滚一个事务
 
 
 
@@ -444,22 +444,23 @@ rollback a transaction
 
 sqlUtils
 
-Functions used internally to build sql
+内部使用的用于构造sql的函数
 
 ### sqlUtils.literalSql(str)
 
 #### params 
 
-+ str `String` - It is useful to construct some special SQL, the returned sql will not be used as a template for the key
++ str `String` - 构造某些特殊SQL很有用 ，返回的sql不会在被当作模版中对key
 
 ```js
 /**
 SQL: UPDATE "public"."users"
-       SET  "email" = {username}||'email.com' ,  "updated_at" = now() 
-       where  (  "username" ={username}  )   ;
+     SET  "email" = {username}||'email.com' ,  "updated_at" = now() 
+     where  (  "username" ={username}  )   ;
 values: {"username":"jack"}
 **/
 const {sqlUtils} = require('@c_kai/pg-helper');
+
 const result = await pgHelper.update({
   username: 'jack',
 }, {
@@ -473,8 +474,6 @@ const result = await pgHelper.update({
   }
 });
 ```
-
-
 
 ### sqlUtils.updateSql(update)
 
@@ -504,4 +503,3 @@ const result = await pgHelper.update({
 
 
 ### sqlUtils.rowsUnderline2hump(rows)
-

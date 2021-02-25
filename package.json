@@ -1,0 +1,23 @@
+{
+  "name": "@ckpack/pg-helper",
+  "version": "1.2.1",
+  "description": "A small helper of node-postgres can help you build queries more easily and safely",
+  "main": "index.js",
+  "repository": "https://github.com/ckpack/pg-helper",
+  "author": "chenkai0520",
+  "license": "MIT",
+  "keywords": [
+    "sql",
+    "sql-utils",
+    "sql-helper",
+    "pg",
+    "pg-utils",
+    "pg-helper",
+    "postgre",
+    "postgres",
+    "postgresql"
+  ],
+  "dependencies": {
+    "pg": "^8.5.1"
+  }
+}
