@@ -64,13 +64,14 @@ function rowsUnderline2hump(rows) {
 }
 
 function orderSql(orders = []) {
-  return orders.map((order) => {
+  const orderSql = orders.map((order) => {
     if (Array.isArray(order)) {
       const [field, type] = order;
       return ` "${field}" ${type} `;
     }
     return ` "${order}" `;
   }).join(', ');
+  return orderSql? ` ORDER BY ${orderSql} ` : ' ';
 }
 
 function getWhereSql(where, options = {}) {
