@@ -184,7 +184,7 @@ function insertSql(params) {
     let valueSql = ' ( ';
     const paramFields = Object.keys(param);
     valueSql += paramFields.map((value, valueIndex) => {
-      if (typeof param[value] === 'object' && symbolLiteral in param[value]) {
+      if (param[value] && typeof param[value] === 'object' && param[value][symbolLiteral]) {
         ignoreCount += 1;
         return param[value][symbolLiteral];
       }
