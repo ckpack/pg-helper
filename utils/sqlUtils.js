@@ -19,7 +19,11 @@ function sqlTemplate(sqlTemp, obj) {
     if (!item) continue;
     if (index % 2 !== 0) {
       sql += `$${(index + 1) / 2}`;
-      values.push(obj[item]);
+      if(item in obj){
+        values.push(obj[item]);
+      } else {
+        throw new Error(`${item} not in params`);
+      }
     } else {
       sql += item;
     }
