@@ -31,6 +31,6 @@ pgHelper.runSql(`SELECT * FROM ${tablename} WHERE field1 = {field1} AND field2 =
 pgHelper.runSql(`SELECT * FROM ${tablename} WHERE field1 = $1 AND field2 = $2`, [field1, field2])
 ```
 
-# Demos[./_test/]
+# [Demos](_test/)
 
 # [Documentation](https://ckpack.github.io/pg-helper/)

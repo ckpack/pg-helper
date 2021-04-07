@@ -1,6 +1,6 @@
 {
   "name": "@ckpack/pg-helper",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A small helper of node-postgres can help you build queries more easily and safely",
   "repository": "https://github.com/ckpack/pg-helper",
   "main": "lib/index.js",
