@@ -1,15 +1,23 @@
+import type { EmptyObj } from '../types';
+import type * as SqlUtilsType from '../types/sql-utils';
+import type { SqlTemplate, SqlTempParams } from '../types/pg-helper';
+
 const symbolLiteral = Symbol('literal');
 
 /**
- * sqlStr: `select * from ${USERS}  where username = {username}`
- * obj: {username: 'xiaohong'}
- * 转换为
- * text: `select * from ${USERS}  where username = $1`
- * value: ['xiaohong']
- * @param {string} sqlStr sql
- * @param {*} obj value
+ * sqlTemp to pg query params
+ * ```
+ * sqlTemp: `select * from ${USERS}  where username = {username}`
+ * sqlParams: {username: 'xiaohong'}
+ * to
+ * sql: `select * from ${USERS}  where username = $1`
+ * values: ['xiaohong']
+ * ```
+ * @param sqlTemp sql
+ * @param sqlParams value
  */
-function sqlTemplate(sqlTemp, obj) {
+function sqlTemplate (sqlTemp: SqlTemplate, sqlParams?: SqlTempParams) {
+  sqlParams = sqlParams || {};
   const sqlArr = sqlTemp.split(/[{}]/);
   let sql = '';
   const sqlArrLen = sqlArr.length;
@@ -19,8 +27,8 @@ function sqlTemplate(sqlTemp, obj) {
     if (!item) continue;
     if (index % 2 !== 0) {
       sql += `$${(index + 1) / 2}`;
-      if(item in obj){
-        values.push(obj[item]);
+      if (item in sqlParams) {
+        values.push(sqlParams[item]);
       } else {
         throw new Error(`${item} not in params`);
       }
@@ -30,34 +38,37 @@ function sqlTemplate(sqlTemp, obj) {
   }
   return {
     sql,
-    values,
+    values
   };
 }
 
-function fieldsSql(params) {
+/**
+ * build fields Sql
+ */
+function fieldsSql (params: string[]) {
   return ` "${params.join('", "')}" `;
 }
 
-function underline2hump(str) {
+function underline2hump (str: string) {
   return str.replace(/_([a-z])/g, (match, p1) => p1.toUpperCase());
 }
 
-function hump2underline(str) {
+function hump2underline (str: string) {
   return str.replace(/([A-Z])/g, (match, p1) => `_${p1.toLowerCase()}`);
 }
 
-function objHump2underline(obj) {
-  const formatObj = {};
+function objHump2underline (obj: EmptyObj) {
+  const formatObj: EmptyObj = {};
   Object.keys(obj).forEach((key) => {
     formatObj[hump2underline(key)] = obj[key];
   });
   return formatObj;
 }
 
-function rowsUnderline2hump(rows) {
+function rowsUnderline2hump (rows: EmptyObj[]) {
   if (!Array.isArray(rows) || rows.length === 0) return [];
   return rows.map((obj) => {
-    const res = {};
+    const res: EmptyObj = {};
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         res[underline2hump(key)] = obj[key];
@@ -67,19 +78,23 @@ function rowsUnderline2hump(rows) {
   });
 }
 
-function orderSql(orders = []) {
+/**
+ * build order sql
+ */
+function orderSql (orders: SqlUtilsType.Order[] = []) {
   const orderSql = orders.map((order) => {
     if (Array.isArray(order)) {
       const [field, type] = order;
-      return ` "${field}" ${type} `;
+      return ` "${field}" ${type || ''} `;
     }
     return ` "${order}" `;
   }).join(', ');
-  return orderSql? ` ORDER BY ${orderSql} ` : ' ';
+  return orderSql ? ` ORDER BY ${orderSql} ` : ' ';
 }
 
-function getWhereSql(where, options = {}) {
+function getWhereSql (where: SqlUtilsType.Where| undefined, options?:SqlUtilsType.WhereOptions) {
   if (!where || Object.keys(where).length === 0) return '';
+  options = options || {};
   const type = options.type || 'and';
 
   const fields = Object.keys(where).filter((field) => ['and', 'or'].indexOf(field) === -1);
@@ -96,10 +111,10 @@ function getWhereSql(where, options = {}) {
   }
 
   if ('and' in where) {
-    sql += ` and ${getWhereSql(where.and, { type: 'and' })} `;
+    sql += ` AND ${getWhereSql(where.and, { type: 'and' })} `;
   }
   if ('or' in where) {
-    sql += ` or ${getWhereSql(where.or, { type: 'or'})} `;
+    sql += ` OR ${getWhereSql(where.or, { type: 'or' })} `;
   }
 
   sql += ' ) ';
@@ -107,33 +122,44 @@ function getWhereSql(where, options = {}) {
   return sql;
 }
 
-function whereSql(where) {
+/**
+ * build where sql
+ */
+function whereSql (where?: SqlUtilsType.Where) {
+  if (!where) return '';
   let sql = getWhereSql(where);
   if (sql) {
-    sql = ` where ${sql} `;
+    sql = ` WHERE ${sql} `;
   }
   return sql;
 }
 
-function limitOffsetSql(params) {
+/**
+ * build limit offset sql
+ */
+function limitOffsetSql (params: SqlUtilsType.LimitOffset) {
+  params = params || {};
   const { limit, offset, page } = params;
 
-  if(!Number.isInteger(limit)){
+  if (!limit || !Number.isInteger(limit)) {
     return '';
   }
 
-  if(Number.isInteger(offset)) {
-    return ` limit ${limit} offset ${offset} `;
+  if (offset && Number.isInteger(offset)) {
+    return ` LIMIT ${limit} OFFSET ${offset} `;
   }
 
-  if(Number.isInteger(page)) {
-    return ` limit ${limit} offset ${(page - 1) * limit} `;
+  if (page && Number.isInteger(page)) {
+    return ` LIMIT ${limit} OFFSET ${(page - 1) * limit} `;
   }
 
-  return ` limit ${limit} `;
+  return ` LIMIT ${limit} `;
 }
 
-function includeSql(params) {
+/**
+ * build include Sql
+ */
+function includeSql (params?: SqlUtilsType.Include[]) {
   if (!params || !Array.isArray(params)) {
     return ' * ';
   }
@@ -147,7 +173,10 @@ function includeSql(params) {
   }).join(', ');
 }
 
-function updateSql(params = {}) {
+/**
+ * build update sql
+ */
+function updateSql (params:SqlUtilsType.Update = {}) {
   if (Array.isArray(params)) {
     return params.map((field) => {
       if (typeof field === 'object' && field.value) {
@@ -167,11 +196,13 @@ function updateSql(params = {}) {
     }).join(', ');
 }
 
-
-function insertSql(params) {
+/**
+ * build insert sql
+ */
+function insertSql (params: SqlUtilsType.Insert) {
   let fieldSql = ' ( ';
   let valuesSql = ' VALUES ';
-  const data = [];
+  const data: any[] = [];
   if (!Array.isArray(params)) {
     params = [params];
   }
@@ -184,7 +215,7 @@ function insertSql(params) {
 
   const fieldCount = fields.length;
   let ignoreCount = 0;
-  valuesSql += params.map((param, index) => {
+  valuesSql += params.map((param: SqlUtilsType.InsertItem, index: number) => {
     let valueSql = ' ( ';
     const paramFields = Object.keys(param);
     valueSql += paramFields.map((value, valueIndex) => {
@@ -200,25 +231,31 @@ function insertSql(params) {
   }).join(', ');
   return {
     sql: fieldSql + valuesSql,
-    data,
+    data
   };
 }
 
-function returningSql(returning) {
+/**
+ * build returning sql
+ */
+function returningSql (returning?: SqlUtilsType.Returning) {
   if (!Array.isArray(returning)) {
-    return returning ? ' returning * ' : '';
+    return returning ? ' RETURNING * ' : '';
   }
 
-  return ` returning ${fieldsSql(returning)} `;
+  return ` RETURNING ${fieldsSql(returning)} `;
 }
 
-function literalSql(sql) {
+/**
+ * Functions used internally to build sql,  It is useful to construct some special SQL, the returned sql will not be used as a template for the key
+ */
+function literalSql (sql: string) {
   return {
-    [symbolLiteral]: sql,
+    [symbolLiteral]: sql
   };
 }
 
-module.exports = {
+export {
   sqlTemplate,
   fieldsSql,
   rowsUnderline2hump,
@@ -230,5 +267,5 @@ module.exports = {
   updateSql,
   insertSql,
   returningSql,
-  literalSql,
+  literalSql
 };

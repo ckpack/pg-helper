@@ -1,11 +1,23 @@
 {
   "name": "@ckpack/pg-helper",
-  "version": "1.2.5",
+  "version": "2.0.0",
   "description": "A small helper of node-postgres can help you build queries more easily and safely",
-  "main": "index.js",
   "repository": "https://github.com/ckpack/pg-helper",
-  "author": "chenkai0520",
-  "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "npm run lint && npm run docs && npm run tsc",
+    "tsc": "rm -rf ./lib/* && tsc",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "docs": "rm -rf ./docs/* && typedoc --readme none --theme minimal ./src/index.ts"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "pre-push": "npm test"
+    }
+  },
   "keywords": [
     "sql",
     "sql-utils",
@@ -17,7 +29,29 @@
     "postgres",
     "postgresql"
   ],
+  "files": [
+    "lib"
+  ],
+  "author": "chenkai",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^26.0.21",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
+    "eslint": "^7.22.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "husky": "^4.3.8",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.4",
+    "tslib": "^2.1.0",
+    "typedoc": "^0.20.34",
+    "typescript": "^4.2.3"
+  },
   "dependencies": {
+    "@types/pg": "^7.14.11",
     "pg": "^8.5.1"
   }
 }
